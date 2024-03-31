@@ -1,12 +1,50 @@
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import auth from "../../Firebase/Firebase.config";
+import { useState } from "react";
+import { PiEyeSlash } from "react-icons/pi";
+import { LiaEyeSolid } from "react-icons/lia";
 
 
 const HeroRegister = () => {
-    const handleHeroRegister=e=>{
+
+    const [registerError, setRegisterError] = useState('');
+    const [registerSuccess, setRegisterSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleHeroRegister = e => {
         e.preventDefault();
         const email = e.target.email.value;
-        const password= e.target.password.value;
-        console.log(email,password)
-    
+        const password = e.target.password.value;
+        const Accepted = e.target.terms.checked;
+        console.log(email, password);
+        // clear massage 
+        setRegisterError('');
+        setRegisterSuccess('');
+        //validation 
+        if (password.length < 6) {
+            setRegisterError(' Password should be at least 6 characters')
+            return;
+        }
+        else if (!/[A-Z]/.test(password)) {
+            setRegisterError(' Please provide at least one  upper case characters')
+            return;
+        }
+        else if (!Accepted) {
+            setRegisterError(' Please accept the terms and condition')
+            return;
+        }
+        //create user
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((result => {
+                const user = result.user;
+                console.log(user);
+                setRegisterSuccess('Register successfully')
+            }))
+            .catch((error) => {
+                console.error(error);
+                setRegisterError(error.message)
+            })
+
     }
     return (
         <div>
@@ -22,21 +60,37 @@ const HeroRegister = () => {
                                 <label className="label">
                                     <span className="label-text">Email</span>
                                 </label>
-                                <input type="email" name="email"placeholder="email" className="input input-bordered" required />
+                                <input type="email"  name="email" placeholder="email" className="input input-bordered" required />
                             </div>
                             <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Password</span>
+                                <label className="input input-bordered flex items-center gap-2">
+                                    <input type={showPassword ? "text" : "password"} name="password" className="grow" placeholder="password" />
+                                    <span onClick={() => { setShowPassword(!showPassword) }}>
+                                        {
+                                            showPassword ? <PiEyeSlash /> : <LiaEyeSolid />
+                                        }
+                                    </span>
                                 </label>
-                                <input type="password" name="password" placeholder="password" className="input input-bordered" required />
+                                
                                 <label className="label">
                                     <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
                                 </label>
+                                
                             </div>
+                            <label className="label " htmlFor="terms">
+                                    <input type="checkbox" name="terms"  />
+                                    Accept our <a href="">terms & conditions</a>
+                                </label>
                             <div className="form-control mt-6">
                                 <button className="btn btn-primary">Login</button>
                             </div>
                         </form>
+                        {
+                            registerError && <p className="text-red-700">{registerError}</p>
+                        }
+                        {
+                            registerSuccess && <p className="text-green-700">{registerSuccess}</p>
+                        }
                     </div>
                 </div>
             </div>
