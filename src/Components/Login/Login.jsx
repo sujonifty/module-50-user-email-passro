@@ -1,17 +1,32 @@
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import auth from "../../Firebase/Firebase.config";
+import { useState } from "react";
+import { PiEyeSlash } from "react-icons/pi";
+import { LiaEyeSolid } from "react-icons/lia";
 
 const Login = () => {
-    const handleSignIn=(e)=>{
+    const [showError, setShowError]=useState("");
+    const [showSuccess, setShowSuccess]=useState("");
+    const[showPassword,setShowPassword]=useState(false);
+        const handleSignIn=(e)=>{
         e.preventDefault();
         const email= e.target.email.value;
         const password= e.target.password.value;
         console.log(email, password);
+        // clean the message 
+        setShowError('');
+        setShowSuccess('');
         // validation 
         signInWithEmailAndPassword(auth, email, password)
         .then((result)=>{
             const user = result.user;
+            setShowSuccess('Sign In successfully');
             console.log(user);
+        })
+        .catch((error)=>{
+            const errorMessage =error.code;
+            setShowError('Email or Password is wrong!');
+            console.log(errorMessage);
         })
 
     }
@@ -32,12 +47,12 @@ const Login = () => {
                         </div>
                         <div className="form-control">
                         <label className="input input-bordered flex items-center gap-2">
-                                    <input type="password"  name="password" className="grow" placeholder="password" />
-                                    {/* <span onClick={() => { setShowPassword(!showPassword) }}>
+                                    <input type={showPassword ? "text" : "password"}  name="password" className="grow" placeholder="password" />
+                                    <span onClick={() => { setShowPassword(!showPassword) }}>
                                         {
                                             showPassword ? <PiEyeSlash /> : <LiaEyeSolid />
-                                        } type={showPassword ? "text" : "password"}
-                                    </span> */}
+                                        } 
+                                    </span>
                                 </label>
                             <label className="label">
                                 <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
@@ -46,6 +61,12 @@ const Login = () => {
                         <div className="form-control mt-6">
                             <button className="btn btn-primary">Login</button>
                         </div>
+                        {
+                            showError && <p className="text-red-700">{showError}</p>
+                        }
+                        {
+                            showSuccess && <p className="text-green-700">{showSuccess}</p>
+                        }
                     </form>
                 </div>
             </div>
